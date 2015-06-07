@@ -5,37 +5,79 @@
 		<script language="JavaScript" type="text/javascript" src="canvas_floodfill_v1.0.1.js"></script>
 		<script>
 		$( document ).ready(function() {
+			function test(){
+
+				var commands = [
+							"C 20 4",
+							"L 1 2 6 2",
+							"L 6 3 6 4",
+							"R 16 1 20 3",
+							"B 10 3 #FCD116",
+							"C 21 21",
+							"L 11 1 11 21",
+							"L 1 11 21 11",
+							"B 1 1 #FCD116",
+							"B 20 1 #FCD116",
+							"B 1 20 #003893",
+							"B 20 20 #CE1126",  
+							"Q"
+				];
+
+			i = 0;
+			startTest = setInterval(function(){ 
+				var command = commands[i].split(' ');
+				run(command[0],command[1],command[2],command[3],command[4]); 
+				if(command[0]=='Q'){
+				clearInterval(startTest);
+				}
+				i++;
+			}, 700);
+				
+			}
 			//Click and key events for input command
-			$('.prueba-boton').on( "click", run );
-			$('.prueba-texto').on( "keyup", function(e){
+			$('.exam-button-tests').on( "click", function(){
+			test();
+			});
+			$('.exam-button').on( "click", function(){
+					var command = $('.exam-text').prop('value').split(' ');
+					run(command[0],command[1],command[2],command[3],command[4]);
+			});
+			$('.exam-text').on( "keyup", function(e){
 				if(e.keyCode == 13){
-					run();
+					var command = $('.exam-text').prop('value').split(' ');
+					run(command[0],command[1],command[2],command[3],command[4]);
 				}
 			});
+
 			//Run command
-			function run(){
-				var command = $('.prueba-texto').prop('value').split(' ');
-				switch(command[0].toLowerCase()){
+			function run(i,a,b,c,d){
+				var command = i.toLowerCase();
+				switch(command){
 					case 'c':
-						newCanvas(command[1],command[2]);
+						newCanvas(a,b);
 						break;
 					case 'l':
-						drawLine(command[1],command[3],command[2],command[4]);
+						drawLine(a,c,b,d);
 						break;
 					case 'r':
-						drawRectangle(command[1],command[3],command[2],command[4]);
+						drawRectangle(a,c,b,d);
 						break;
 					case 'b':
 						if($('#exam-canvas').length){
-							if(!isNaN(command[1])&&!isNaN(command[2])){
-								var c = document.getElementById('exam-canvas');
-								var ctx=c.getContext("2d");
-								var xs = parseInt(command[1]);
-								var ys = parseInt(command[2]);
-								floodFill(xs,ys,ctx,'0D547F',50)    
+							if(!isNaN(a)&&!isNaN(b)){
+								var hexColor = c.replace("#","");
+								if(isHexColor(hexColor)){
+									var c = document.getElementById('exam-canvas');
+									var ctx=c.getContext("2d");
+									var xs = parseInt(a);
+									var ys = parseInt(b);
+									floodFill(xs,ys,ctx,hexColor,50)   
+								}else{
+									alert('Incorrect Color Format');
+								}
 							}else{
-								alert('Incorrect coordinates');
-							}
+									alert('Incorrect coordinates');
+								}
 						}else{
 							alert('Canvas does not exist');
 						}
@@ -45,9 +87,9 @@
 						$('html').contents().remove();
 						break;
 					default:
-						alert('Unknow code');
+						alert('Unknow command');
 				}
-				$('.prueba-texto').val('');
+				$('.exam-text').val('');
 			}
 
 			function drawRectangle(x1, x2, y1, y2){
@@ -75,11 +117,12 @@
 						if((x1 == x2)||(y1==y2)){
 						var c = document.getElementById('exam-canvas');
 						var ctx=c.getContext("2d");
-						ctx.fillStyle="#0D547F";
-						ctx.font="bold 2px Times new roman";
+						ctx.fillStyle="#222222";
+						ctx.font="1px Times new roman";
 							if(y1 == y2){
 								//Horizontal Line
 								var length = Math.abs(Math.abs(x1) -Math.abs(x2));
+								//Pixel offset fix
 								var timesCharacter = parseInt(length/1) + 2;
 								var stringWrite = Array(timesCharacter).join('x');
 								var textAlign = ( (Math.abs(x1) - Math.abs(x2)) > 0 ) ? 'right' : 'left';
@@ -92,6 +135,7 @@
 							}else{
 								//ctx.textAlign = 'left';
 								var length = Math.abs(Math.abs(y1) -Math.abs(y2));
+								//Pixel offset fix
 								var timesCharacter = parseInt(length/1)+1;  
 								var upDown = ( (Math.abs(y1) - Math.abs(y2)) > 0 ) ? -1 : 1;            
 								x1 = parseInt(x1);
@@ -113,34 +157,43 @@
 
 			function newCanvas(width, height){
 				if(!isNaN(width)&&!isNaN(height)){
-					$('.prueba-canvas-div').contents().remove();
+					$('.exam-canvas-div').contents().remove();
 					var canvas = document.createElement('canvas');
 					canvas.height = height;
 					canvas.width = width;
 					canvas.id = "exam-canvas";
-					$('.prueba-canvas-div').append(canvas);
+					$('.exam-canvas-div').append(canvas);
 					
 				}else{
 					alert('Incorrect coordinates');
 				}
 			}
-		});
+
+			function isHexColor(sNum){
+			  return (typeof sNum === "string") && sNum.length === 6 
+					 && ! isNaN( parseInt(sNum, 16) );
+			}
+			});
 		</script>
 		<style>
-			.prueba-canvas{
-			overflow:hidden;
-			}
 			body{
 				background-color:grey;
 			}
 			#exam-canvas{
 			  background-color:white;  
 			}
+			.exam-container{
+				overflow:hidden;
+				margin-left:34%;
+			}
 		</style>
 	</head>
 	<body>
-		<input class="prueba-texto"/>
-		<button class="prueba-boton">Enter Command </button>
-		<div class="prueba-canvas-div"></div>
+		<div class ="exam-container">
+			<input class="exam-text"/>
+			<button class="exam-button">Enter Command </button>
+			<button class="exam-button-tests">Run Tests </button>
+			<div class="exam-canvas-div"></div>
+		</div>
 	</body>
 </html>
