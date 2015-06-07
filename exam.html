@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script language="JavaScript" type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script language="JavaScript" type="text/javascript" src="canvas_floodfill_v1.0.1.js"></script>
+		<script>
+		$( document ).ready(function() {
+			//Click and key events for input command
+			$('.prueba-boton').on( "click", run );
+			$('.prueba-texto').on( "keyup", function(e){
+				if(e.keyCode == 13){
+					run();
+				}
+			});
+			//Run command
+			function run(){
+				var command = $('.prueba-texto').prop('value').split(' ');
+				switch(command[0].toLowerCase()){
+					case 'c':
+						newCanvas(command[1],command[2]);
+						break;
+					case 'l':
+						drawLine(command[1],command[3],command[2],command[4]);
+						break;
+					case 'r':
+						drawRectangle(command[1],command[3],command[2],command[4]);
+						break;
+					case 'b':
+						if($('#exam-canvas').length){
+							if(!isNaN(command[1])&&!isNaN(command[2])){
+								var c = document.getElementById('exam-canvas');
+								var ctx=c.getContext("2d");
+								var xs = parseInt(command[1]);
+								var ys = parseInt(command[2]);
+								floodFill(xs,ys,ctx,'0D547F',50)    
+							}else{
+								alert('Incorrect coordinates');
+							}
+						}else{
+							alert('Canvas does not exist');
+						}
+						break;
+					case 'q':
+						alert('You have quit the program');
+						$('html').contents().remove();
+						break;
+					default:
+						alert('Unknow code');
+				}
+				$('.prueba-texto').val('');
+			}
+
+			function drawRectangle(x1, x2, y1, y2){
+				if($('#exam-canvas').length){
+					if(!isNaN(x1)&&!isNaN(y1)&&!isNaN(x2)&&!isNaN(y2)){
+						x1 = parseInt(x1);
+						y1 = parseInt(y1);
+						x2 = parseInt(x2);
+						y2 = parseInt(y2);
+						drawLine(x1, x2, y1, y1);
+						drawLine(x1, x1, y1, y2);
+						drawLine(x1, x2, y2, y2);
+						drawLine(x2, x2, y1, y2);
+					}else{
+						alert('Incorrect coordinates');
+					}
+				}else{
+					alert('Canvas does not exist');
+				}
+			}
+
+			function drawLine(x1, x2, y1, y2){
+				if($('#exam-canvas').length){
+					if(!isNaN(x1)&&!isNaN(y1)&&!isNaN(x2)&&!isNaN(y2)){
+						if((x1 == x2)||(y1==y2)){
+						var c = document.getElementById('exam-canvas');
+						var ctx=c.getContext("2d");
+						ctx.fillStyle="#0D547F";
+						ctx.font="bold 2px Times new roman";
+							if(y1 == y2){
+								//Horizontal Line
+								var length = Math.abs(Math.abs(x1) -Math.abs(x2));
+								var timesCharacter = parseInt(length/1) + 2;
+								var stringWrite = Array(timesCharacter).join('x');
+								var textAlign = ( (Math.abs(x1) - Math.abs(x2)) > 0 ) ? 'right' : 'left';
+								ctx.textAlign = textAlign;
+								y1 = parseInt(y1);
+								x1 = parseInt(x1);
+							   // y1 += 10 ;
+								ctx.fillText(stringWrite,x1,y1); 
+								
+							}else{
+								//ctx.textAlign = 'left';
+								var length = Math.abs(Math.abs(y1) -Math.abs(y2));
+								var timesCharacter = parseInt(length/1)+1;  
+								var upDown = ( (Math.abs(y1) - Math.abs(y2)) > 0 ) ? -1 : 1;            
+								x1 = parseInt(x1);
+								y1 = parseInt(y1);
+								for(var i = 0 ; i < timesCharacter ; i++){
+									ctx.fillText('x',x1,y1 + upDown*i*1);
+								}                              
+							}
+						}else{
+							alert('Only horizontal or vertical lines are supported');
+						}
+					}else{
+						alert('Incorrect coordinates');
+					}
+				}else{
+					alert('Canvas does not exist');
+				}
+			}
+
+			function newCanvas(width, height){
+				if(!isNaN(width)&&!isNaN(height)){
+					$('.prueba-canvas-div').contents().remove();
+					var canvas = document.createElement('canvas');
+					canvas.height = height;
+					canvas.width = width;
+					canvas.id = "exam-canvas";
+					$('.prueba-canvas-div').append(canvas);
+					
+				}else{
+					alert('Incorrect coordinates');
+				}
+			}
+		});
+		</script>
+		<style>
+			.prueba-canvas{
+			overflow:hidden;
+			}
+			body{
+				background-color:grey;
+			}
+			#exam-canvas{
+			  background-color:white;  
+			}
+		</style>
+	</head>
+	<body>
+		<input class="prueba-texto"/>
+		<button class="prueba-boton">Enter Command </button>
+		<div class="prueba-canvas-div"></div>
+	</body>
+</html>
